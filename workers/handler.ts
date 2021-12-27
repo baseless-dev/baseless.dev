@@ -1,33 +1,20 @@
-const GITHUB_TOKEN = "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";
+const moduleLike = new RegExp('^/x/([^/@]+)(@([^/]+))?/(.*)');
 
 export async function handle(request: Request): Promise<Response> {
 	const url = new URL(request.url);
-	const pathname = url.pathname.replace(/^\//, '');
-	try {
-		const response = await fetch(`https://api.github.com/graphql`, {
-			method: 'POST',
-			headers: {
-				'Authorization': `Bearer ${GITHUB_TOKEN}`
-			},
-			body: JSON.stringify({
-				query: `query { 
-					repository(owner:"baseless-dev", name:"baseless") {
-						object(expression:"HEAD:${pathname}") {
-							... on Blob {
-								text
-							}
-						}
-					}
-				}`
-			})
-		});
-		const json = await response.json();
-		if (json?.data?.repository?.object?.text) {
-			return new Response(json?.data?.repository?.object?.text, { status: 200 });
+	const match = url.pathname.match(moduleLike);
+	if (match) {
+		const module = match[1];
+		const tag = match[3];
+		const pathname = match[4] ?? '';
+		if (!tag) {
+			url.pathname = `/x/${module}@main/${pathname}`;
+			return Response.redirect(url.toString());
 		}
-		return new Response(null, { status: 404 });
-	} catch (_err) {
-		console.error(_err);
-		return new Response(null, { status: 404 });
+		const response = await fetch(`https://raw.githubusercontent.com/baseless-dev/baseless/${tag}/${module}/${pathname}`);
+		const source = await response.text();
+		const transformed = source.replaceAll(/https:\/\/baseless.dev\/x\/([^\/]*)\//gi, `https://baseless.dev/x/$1@${tag}/`);
+		return new Response(transformed, response);
 	}
+	return new Response(null, { status: 404 });
 }
