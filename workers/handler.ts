@@ -29,9 +29,9 @@ export async function handle(
         `https://baseless.dev/x/$1@${tag}/`,
       );
       response = new Response(transformed, response);
-      ctx.waitUntil(cache.put(request, response));
+      ctx.waitUntil(cache.put(request, response.clone()));
     }
-	return response;
+    return response;
   }
   return new Response(null, { status: 404 });
 }
