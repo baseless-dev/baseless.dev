@@ -3,3 +3,7 @@ type = "javascript"
 name = "baseless"
 account_id = "b17e7ad4e6cad0fc022458ad0014bcc5"
 workers_dev = true
+
+kv_namespaces = [
+	{ binding = "BASELESS_STORAGE", id = "c4b092832e5e4cc09e031085ee512f55" }
+]
