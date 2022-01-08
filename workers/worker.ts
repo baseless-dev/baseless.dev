@@ -166,12 +166,16 @@ export async function handle(
 				response = Response.redirect(url.toString());
 			} else {
 				try {
-					const entry = await kv.get(`${module}@${tag}/${pathname}`, "stream");
-					let contentType = MEDIA_TYPES[ext] ?? "application/octet-stream";
-					if (!entry) {
+					const contentType = MEDIA_TYPES[ext] ?? "application/octet-stream";
+					const source = await kv.get(`${module}@${tag}/${pathname}`, "text");
+					if (!source) {
 						throw new Error();
 					}
-					response = new Response(entry, {
+					const transformed = source.replaceAll(
+						/https:\/\/baseless.dev\/x\/([^\/]*)\//gi,
+						`https://baseless.dev/x/$1@${tag}/`,
+					);
+					response = new Response(transformed, {
 						status: 200,
 						headers: { "Access-Control-Allow-Origin": "*", "Content-Type": contentType },
 					});
