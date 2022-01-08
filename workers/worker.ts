@@ -154,6 +154,7 @@ export async function handle(
 
 	let response = await cache.match(request);
 	if (!response) {
+		response = new Response(null, { status: 404 });
 		const match = url.pathname.match(moduleLike);
 		if (match) {
 			const module = match[1];
@@ -161,25 +162,21 @@ export async function handle(
 			const pathname = match[4] ?? "";
 			const ext = "." + (pathname.split("/").pop() ?? "").split(".").slice(1).join(".");
 			if (!tag) {
-				url.pathname = `/x/${module}@main/${pathname}`;
+				url.pathname = `/x/${module}@latest/${pathname}`;
 				response = Response.redirect(url.toString());
 			} else {
 				try {
 					const entry = await kv.get(`${module}@${tag}/${pathname}`, "stream");
 					let contentType = MEDIA_TYPES[ext] ?? "application/octet-stream";
 					if (!entry) {
-						throw new Error("Hun");
+						throw new Error();
 					}
 					response = new Response(entry, {
 						status: 200,
 						headers: { "Access-Control-Allow-Origin": "*", "Content-Type": contentType },
 					});
-				} catch (err) {
-					response = new Response(null, { status: 404 });
-				}
+				} catch (_err) {}
 			}
-		} else {
-			response = new Response(null, { status: 404 });
 		}
 		ctx.waitUntil(cache.put(request, response.clone()));
 	}
