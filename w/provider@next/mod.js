@@ -1,0 +1,10 @@
+export * from "./auth.js";
+export * from "./context.js";
+export * from "./client.js";
+export * from "./database.js";
+export * from "./kv.js";
+export * from "./mail.js";
+export class NoopProviderError extends Error {
+    name = "NoopProviderError";
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibW9kLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsibW9kLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLGNBQWMsV0FBVyxDQUFDO0FBQzFCLGNBQWMsY0FBYyxDQUFDO0FBQzdCLGNBQWMsYUFBYSxDQUFDO0FBQzVCLGNBQWMsZUFBZSxDQUFDO0FBQzlCLGNBQWMsU0FBUyxDQUFDO0FBQ3hCLGNBQWMsV0FBVyxDQUFDO0FBSzFCLE1BQU0sT0FBTyxpQkFBa0IsU0FBUSxLQUFLO0lBQ3BDLElBQUksR0FBRyxtQkFBbUIsQ0FBQztDQUNsQyIsInNvdXJjZXNDb250ZW50IjpbImV4cG9ydCAqIGZyb20gXCIuL2F1dGgudHNcIjtcbmV4cG9ydCAqIGZyb20gXCIuL2NvbnRleHQudHNcIjtcbmV4cG9ydCAqIGZyb20gXCIuL2NsaWVudC50c1wiO1xuZXhwb3J0ICogZnJvbSBcIi4vZGF0YWJhc2UudHNcIjtcbmV4cG9ydCAqIGZyb20gXCIuL2t2LnRzXCI7XG5leHBvcnQgKiBmcm9tIFwiLi9tYWlsLnRzXCI7XG5cbi8qKlxuICogTm9vcCBQcm92aWRlciBFcnJvclxuICovXG5leHBvcnQgY2xhc3MgTm9vcFByb3ZpZGVyRXJyb3IgZXh0ZW5kcyBFcnJvciB7XG5cdHB1YmxpYyBuYW1lID0gXCJOb29wUHJvdmlkZXJFcnJvclwiO1xufVxuIl19
