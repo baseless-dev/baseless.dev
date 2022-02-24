@@ -16,7 +16,7 @@ export default {
 	},
 };
 
-const moduleLike = new RegExp("^/x/([^/@]+)(@([^/]+))?/(.*)");
+const moduleLike = new RegExp("^/([xw])/([^/@]+)(@([^/]+))?/(.*)");
 
 const MEDIA_TYPES: Record<string, string> = {
 	".md": "text/markdown",
@@ -150,36 +150,40 @@ export async function handle(
 ): Promise<Response> {
 	const url = new URL(request.url);
 	const cache = caches.default;
-	const kv: KVNamespace = env.BASELESS_STORAGE;
 
 	let response = await cache.match(request);
 	if (!response) {
 		response = new Response(null, { status: 404 });
 		const match = url.pathname.match(moduleLike);
 		if (match) {
-			const module = match[1];
-			const tag = match[3];
-			const pathname = match[4] ?? "";
+			const type = match[1];
+			const module = match[2];
+			const tag = match[4];
+			const pathname = match[5] ?? "";
 			const ext = "." + (pathname.split("/").pop() ?? "").split(".").slice(1).join(".");
 			if (!tag) {
-				url.pathname = `/x/${module}@latest/${pathname}`;
+				url.pathname = `/${type}/${module}@latest/${pathname}`;
 				response = Response.redirect(url.toString());
 			} else {
 				try {
 					const contentType = MEDIA_TYPES[ext] ?? "application/octet-stream";
-					const source = await kv.get(`${module}@${tag}/${pathname}`, "text");
-					if (!source) {
-						throw new Error();
-					}
-					const transformed = source.replaceAll(
-						/https:\/\/baseless.dev\/x\/([^\/]*)\//gi,
-						`https://baseless.dev/x/$1@${tag}/`,
+					const res = await fetch(
+						`https://raw.githubusercontent.com/baseless-dev/baseless.dev/modules/${type}/${module}@${tag}/${pathname}`,
 					);
-					response = new Response(transformed, {
-						status: 200,
-						headers: { "Access-Control-Allow-Origin": "*", "Content-Type": contentType },
-					});
-				} catch (_err) {}
+					if (res.status === 200) {
+						const source = await res.text();
+						const transformed = source.replaceAll(
+							/https:\/\/baseless.dev\/([xw])\/([^\/]*)\//gi,
+							`https://baseless.dev/$1/$2@${tag}/`,
+						);
+						response = new Response(transformed, {
+							status: 200,
+							headers: { "Access-Control-Allow-Origin": "*", "Content-Type": contentType },
+						});
+					}
+				} catch (_err) {
+					response = new Response(null, { status: 500 });
+				}
 			}
 		}
 		ctx.waitUntil(cache.put(request, response.clone()));
